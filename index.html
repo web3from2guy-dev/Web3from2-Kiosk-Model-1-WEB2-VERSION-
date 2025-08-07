@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Food Spot Kiosk</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark slate background */
+            color: #e2e8f0; /* Light gray text */
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .menu-item-card {
+            background-color: #2d3748; /* Darker gray for cards */
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .menu-item-card:hover {
+            transform: translateY(-5px);
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #2d3748;
+            margin: auto;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #cbd5e0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover {
+            color: #e2e8f0;
+        }
+        .copy-button {
+            background-color: #48bb78; /* Green-500 */
+            color: #1a202c;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .copy-button:hover {
+            background-color: #38a169; /* Green-600 */
+        }
+        .cashapp-link {
+            background-color: #00d68f; /* Cash App green */
+            color: #1a202c;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .cashapp-link:hover {
+            background-color: #00b377;
+        }
+        /* Admin button specific styles */
+        .admin-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            background-color: #dc2626; /* Red-600 */
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .admin-btn:hover {
+            background-color: #b91c1c; /* Red-700 */
+        }
+        /* Back to Start button on Kiosk Page */
+        .back-to-start-kiosk-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            background-color: #4a5568; /* Gray-700 */
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+            z-index: 10; /* Ensure it's above other elements if needed */
+        }
+        .back-to-start-kiosk-btn:hover {
+            background-color: #2d3748; /* Gray-800 */
+        }
+        /* Admin Dashboard Column Styling */
+        .admin-column {
+            background-color: #2d3748;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .admin-column h3 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #cbd5e0;
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .admin-order-card {
+            background-color: #4a5568;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .admin-order-card .order-items-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #a0aec0;
+        }
+        .admin-order-card .order-items-list li {
+            margin-bottom: 0.25rem;
+        }
+        .admin-order-card .status-buttons button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .admin-order-card .status-buttons .btn-in-progress {
+            background-color: #f6ad55; /* Orange */
+            color: #2d3748;
+        }
+        .admin-order-card .status-buttons .btn-in-progress:hover {
+            background-color: #ed8936;
+        }
+        .admin-order-card .status-buttons .btn-completed {
+            background-color: #48bb78; /* Green */
+            color: #2d3748;
+        }
+        .admin-order-card .status-buttons .btn-completed:hover {
+            background-color: #38a169;
+        }
+        .admin-order-card .status-buttons .btn-revert {
+            background-color: #a0aec0; /* Gray */
+            color: #2d3748;
+        }
+        .admin-order-card .status-buttons .btn-revert:hover {
+            background-color: #718096;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <!-- Main Application Container -->
+    <div id="app-container" class="min-h-screen flex flex-col">
+
+        <!-- Start Page -->
+        <div id="start-page" class="flex-1 flex flex-col items-center justify-center text-center p-4 relative">
+            <!-- Link to Admin Panel -->
+            <a href="URL_OF_ADMIN_DASHBOARD" id="admin-panel-link" class="admin-btn">
+                Admin Panel
+            </a>
+            <h1 class="text-5xl font-extrabold text-yellow-400 mb-6">Welcome to The Food Spot Kiosk!</h1>
+            <p class="text-gray-300 text-xl mb-10">Choose your path:</p>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+                <button id="order-food-btn" class="px-8 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-transform duration-300 transform hover:scale-105 text-lg">
+                    <i class="fas fa-utensils mr-2"></i> Order Food
+                </button>
+            </div>
+        </div>
+
+        <!-- Food Kiosk Page (Initially Hidden) -->
+        <div id="food-kiosk-page" class="flex-1 hidden relative">
+            <!-- Back to Start Button on Kiosk Page -->
+            <button id="back-to-start-kiosk-btn" class="back-to-start-kiosk-btn">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Start
+            </button>
+            <!-- Header Section -->
+            <header class="bg-gray-800 py-6 shadow-lg">
+                <div class="container text-center">
+                    <h1 class="text-4xl font-extrabold text-yellow-400">The Food Spot</h1>
+                    <p class="text-gray-400 text-lg mt-2">Fresh, Fast, and Delicious!</p>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="container mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Menu Section (Left & Center on Large Screens) -->
+                <section class="lg:col-span-2">
+                    <h2 class="text-3xl font-bold text-indigo-400 mb-6 text-center lg:text-left">Our Delicious Menu</h2>
+                    <div id="menu-items-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Menu items will be dynamically loaded here by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Order Summary Section (Right on Large Screens) -->
+                <aside class="lg:col-span-1 bg-gray-800 p-6 rounded-xl shadow-lg h-fit sticky top-8">
+                    <h2 class="text-3xl font-bold text-green-400 mb-6 text-center">Your Order</h2>
+                    <div id="order-list" class="space-y-4 mb-6 min-h-[100px]">
+                        <p id="empty-cart-message" class="text-gray-500 text-center">Your cart is empty. Add some delicious items!</p>
+                        <!-- Order items will be dynamically loaded here by JavaScript -->
+                    </div>
+                    <div class="border-t border-gray-700 pt-4 mt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xl font-bold text-gray-300">Total:</span>
+                            <span id="order-total" class="text-3xl font-extrabold text-yellow-300">$0.00</span>
+                        </div>
+                        <button id="complete-order-btn" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Complete Order
+                        </button>
+                    </div>
+                </aside>
+            </main>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="order-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="close-modal-btn">&times;</span>
+            <h3 class="text-3xl font-bold text-green-400 mb-4 text-center">Order Confirmed!</h3>
+            <p class="text-gray-300 text-lg mb-6 text-center">
+                Your order is ready. Please make your payment using Cash App with the Transaction ID below.
+            </p>
+            
+            <div class="bg-gray-700 p-6 rounded-xl border border-gray-600 mb-6 text-center">
+                <p class="text-gray-400 text-sm mb-2">Your Total:</p>
+                <p id="modal-order-total" class="text-4xl font-extrabold text-yellow-300 mb-4">$0.00</p>
+                
+                <p class="text-gray-400 text-sm mb-2">Transaction ID:</p>
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <span id="transaction-id-display" class="text-lg font-mono text-indigo-300 break-all"></span>
+                    <button id="copy-transaction-id-btn" class="copy-button flex items-center space-x-2">
+                        <i class="fas fa-copy"></i> <span id="copy-btn-text">Copy</span>
+                    </button>
+                </div>
+                
+                <p class="text-gray-400 text-sm mb-2">Pay via:</p>
+                <a id="cashapp-pay-link" href="https://cash.app" target="_blank" class="cashapp-link">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Cash_App_Logo.png/640px-Cash_App_Logo.png" alt="Cash App Logo" class="h-6 w-6 mr-2">
+                    <span>Pay with Cash App</span>
+                </a>
+            </div>
+
+            <button id="modal-close-btn" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer Section (only visible on kiosk page) -->
+    <footer id="kiosk-footer" class="bg-gray-800 py-6 mt-auto text-center text-gray-400 hidden">
+        <p>&copy; 2025 The Food Spot. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Data for Menu Items ---
+            const menuItems = [
+                {
+                    id: 'burger',
+                    name: 'Classic Burger',
+                    price: 12.50,
+                    description: 'Juicy beef patty, lettuce, tomato, onion, pickles, and our special sauce.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Burger'
+                },
+                {
+                    id: 'fries',
+                    name: 'Crispy Fries',
+                    price: 4.00,
+                    description: 'Golden-brown, perfectly salted, and irresistibly crispy.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Fries'
+                },
+                {
+                    id: 'shake',
+                    name: 'Vanilla Milkshake',
+                    price: 6.00,
+                    description: 'Creamy vanilla ice cream blended to perfection.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Shake'
+                },
+                {
+                    id: 'pizza',
+                    name: 'Pepperoni Pizza Slice',
+                    price: 5.50,
+                    description: 'A classic slice with rich tomato sauce, mozzarella, and pepperoni.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Pizza'
+                },
+                {
+                    id: 'salad',
+                    name: 'Garden Salad',
+                    price: 8.00,
+                    description: 'Fresh mixed greens, cherry tomatoes, cucumber, and a light vinaigrette.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Salad'
+                },
+                {
+                    id: 'soda',
+                    name: 'Soft Drink',
+                    price: 2.50,
+                    description: 'Your choice of refreshing Coca-Cola, Sprite, or Fanta.',
+                    imageUrl: 'https://placehold.co/300x200/ffcc00/000000?text=Soda'
+                }
+            ];
+
+            // --- DOM Elements ---
+            const startPage = document.getElementById('start-page');
+            const foodKioskPage = document.getElementById('food-kiosk-page');
+            const orderFoodBtn = document.getElementById('order-food-btn');
+            const backToStartKioskBtn = document.getElementById('back-to-start-kiosk-btn'); // New button
+
+            const menuItemsContainer = document.getElementById('menu-items-container');
+            const orderList = document.getElementById('order-list');
+            const orderTotalDisplay = document.getElementById('order-total');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const completeOrderBtn = document.getElementById('complete-order-btn');
+            const orderModal = document.getElementById('order-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalOrderTotal = document.getElementById('modal-order-total');
+            const transactionIdDisplay = document.getElementById('transaction-id-display');
+            const copyTransactionIdBtn = document.getElementById('copy-transaction-id-btn');
+            const copyBtnText = document.getElementById('copy-btn-text');
+            const cashAppPayLink = document.getElementById('cashapp-pay-link');
+            const kioskFooter = document.getElementById('kiosk-footer');
+
+            // --- State Variables ---
+            let cart = {}; // Stores { itemId: quantity } for the current order
+            let orderTotal = 0;
+
+            // --- Page Navigation Functions ---
+            const showPage = (pageId) => {
+                startPage.classList.add('hidden');
+                foodKioskPage.classList.add('hidden');
+                kioskFooter.classList.add('hidden'); // Hide footer by default
+
+                if (pageId === 'start-page') {
+                    startPage.classList.remove('hidden');
+                } else if (pageId === 'food-kiosk-page') {
+                    foodKioskPage.classList.remove('hidden');
+                    kioskFooter.classList.remove('hidden'); // Show footer for kiosk page
+                    renderMenuItems(); // Ensure menu is rendered when navigating to kiosk
+                    updateCartDisplay(); // Ensure cart is updated
+                }
+            };
+
+            // --- Food Kiosk Functions ---
+
+            // Renders all menu items
+            const renderMenuItems = () => {
+                menuItemsContainer.innerHTML = ''; // Clear existing items
+                menuItems.forEach(item => {
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'menu-item-card p-4';
+                    itemCard.innerHTML = `
+                        <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-40 object-cover rounded-md mb-4">
+                        <h3 class="text-xl font-bold text-white mb-1">${item.name}</h3>
+                        <p class="text-gray-400 text-sm mb-2">${item.description}</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-2xl font-extrabold text-green-400">$${item.price.toFixed(2)}</span>
+                            <button data-item-id="${item.id}" class="add-to-cart-btn px-4 py-2 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 transition-colors duration-200">
+                                Add to Order
+                            </button>
+                        </div>
+                    `;
+                    menuItemsContainer.appendChild(itemCard);
+                });
+
+                // Attach event listeners to "Add to Order" buttons
+                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const itemId = e.target.dataset.itemId;
+                        addToCart(itemId);
+                    });
+                });
+            };
+
+            // Adds an item to the cart
+            const addToCart = (itemId) => {
+                if (cart[itemId]) {
+                    cart[itemId]++;
+                } else {
+                    cart[itemId] = 1;
+                }
+                updateCartDisplay();
+            };
+
+            // Updates the order summary display
+            const updateCartDisplay = () => {
+                orderList.innerHTML = ''; // Clear current list
+                orderTotal = 0;
+                let cartIsEmpty = true;
+
+                for (const itemId in cart) {
+                    if (cart[itemId] > 0) {
+                        cartIsEmpty = false;
+                        const item = menuItems.find(m => m.id === itemId);
+                        if (item) {
+                            const itemTotal = item.price * cart[itemId];
+                            orderTotal += itemTotal;
+
+                            const orderItemDiv = document.createElement('div');
+                            orderItemDiv.className = 'flex justify-between items-center bg-gray-700 p-3 rounded-md';
+                            orderItemDiv.innerHTML = `
+                                <div>
+                                    <p class="font-semibold text-white">${item.name} x ${cart[itemId]}</p>
+                                    <p class="text-gray-400 text-sm">$${item.price.toFixed(2)} each</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-yellow-300">$${itemTotal.toFixed(2)}</span>
+                                    <button data-item-id="${item.id}" class="remove-from-cart-btn text-red-400 hover:text-red-500 transition-colors">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </button>
+                                </div>
+                            `;
+                            orderList.appendChild(orderItemDiv);
+                        }
+                    }
+                }
+
+                if (cartIsEmpty) {
+                    emptyCartMessage.style.display = 'block';
+                    completeOrderBtn.disabled = true;
+                } else {
+                    emptyCartMessage.style.display = 'none';
+                    completeOrderBtn.disabled = false;
+                }
+
+                orderTotalDisplay.textContent = `$${orderTotal.toFixed(2)}`;
+
+                // Attach event listeners to "Remove from Cart" buttons
+                document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const itemId = e.target.dataset.itemId;
+                        removeFromCart(itemId);
+                    });
+                });
+            };
+
+            // Removes an item from the cart
+            const removeFromCart = (itemId) => {
+                if (cart[itemId] && cart[itemId] > 0) {
+                    cart[itemId]--;
+                    if (cart[itemId] === 0) {
+                        delete cart[itemId]; // Remove item if quantity is zero
+                    }
+                }
+                updateCartDisplay();
+            };
+
+            // Handles the "Complete Order" button click
+            const handleCompleteOrder = () => {
+                if (orderTotal <= 0) {
+                    // Using a custom message box instead of alert
+                    alert('Your cart is empty. Please add items before completing the order.');
+                    return;
+                }
+
+                const transactionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                const orderDetails = {
+                    id: transactionId,
+                    items: Object.keys(cart).map(itemId => ({
+                        ...menuItems.find(item => item.id === itemId),
+                        quantity: cart[itemId]
+                    })),
+                    total: orderTotal,
+                    timestamp: new Date().toLocaleString(),
+                    status: 'new' // New orders start with 'new' status
+                };
+
+                saveOrder(orderDetails); // Save order to local storage
+                
+                modalOrderTotal.textContent = `$${orderTotal.toFixed(2)}`;
+                transactionIdDisplay.textContent = transactionId;
+                copyBtnText.textContent = 'Copy'; // Reset copy button text
+
+                orderModal.style.display = 'flex'; // Show the modal
+            };
+
+            // Copies the transaction ID to clipboard
+            const copyTransactionId = () => {
+                const textToCopy = transactionIdDisplay.textContent;
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand('copy');
+                    copyBtnText.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtnText.textContent = 'Copy';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy transaction ID. Please copy it manually: ' + textToCopy);
+                } finally {
+                    document.body.removeChild(tempInput);
+                }
+            };
+
+            // Closes the modal and resets the cart
+            const closeOrderModal = () => {
+                orderModal.style.display = 'none';
+                cart = {}; // Clear the cart
+                updateCartDisplay(); // Update display to reflect empty cart
+            };
+
+            // --- Admin Panel Functions (Stubs for localStorage interaction) ---
+            const saveOrder = (order) => {
+                const orders = JSON.parse(localStorage.getItem('foodKioskOrders')) || [];
+                orders.push(order);
+                localStorage.setItem('foodKioskOrders', JSON.stringify(orders));
+            };
+
+            // --- Event Listeners ---
+            orderFoodBtn.addEventListener('click', () => showPage('food-kiosk-page'));
+            backToStartKioskBtn.addEventListener('click', () => showPage('start-page'));
+
+            completeOrderBtn.addEventListener('click', handleCompleteOrder);
+            closeModalBtn.addEventListener('click', closeOrderModal);
+            modalCloseBtn.addEventListener('click', closeOrderModal);
+            copyTransactionIdBtn.addEventListener('click', copyTransactionId);
+
+            // Initial page load
+            showPage('start-page');
+        });
+    </script>
+</body>
+</html>
