@@ -91,21 +91,22 @@
         .cashapp-link:hover {
             background-color: #00b377;
         }
-        /* Admin button specific styles */
-        .admin-btn {
+        /* New class for the 'Back to Start Menu' button */
+        .back-to-start-menu-btn {
             position: absolute;
             top: 1rem;
             left: 1rem;
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
-            background-color: #dc2626; /* Red-600 */
+            background-color: #4a5568; /* Gray-700 */
             color: white;
             border-radius: 0.5rem;
             font-weight: bold;
             transition: background-color 0.2s ease-in-out;
+            z-index: 10;
         }
-        .admin-btn:hover {
-            background-color: #b91c1c; /* Red-700 */
+        .back-to-start-menu-btn:hover {
+            background-color: #2d3748; /* Gray-800 */
         }
         /* Back to Start button on Kiosk Page */
         .back-to-start-kiosk-btn {
@@ -196,9 +197,9 @@
 
         <!-- Start Page -->
         <div id="start-page" class="flex-1 flex flex-col items-center justify-center text-center p-4 relative">
-            <!-- Link to Admin Panel -->
-            <a href="https://web3from2guy-dev.github.io/startmenu-WEB2FOOD1-/" id="admin-panel-link" class="admin-btn">
-                Admin Panel
+            <!-- Link to Back to Start Menu -->
+            <a href="https://web3from2guy-dev.github.io/startmenu-WEB2FOOD1-/" id="back-to-start-menu-link" class="back-to-start-menu-btn">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Start Menu
             </a>
             <h1 class="text-5xl font-extrabold text-yellow-400 mb-6">Welcome to The Food Spot Kiosk!</h1>
             <p class="text-gray-300 text-xl mb-10">Choose your path:</p>
